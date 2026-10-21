@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en" class="dark scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>KlipOra — Universal High-Speed Video & Audio Downloader</title>
+  <meta name="description" content="KlipOra: Download high-quality videos and MP3 audio from TikTok, YouTube, Instagram, Facebook, Twitter/X, and 1000+ platforms instantly for free.">
+  <meta name="theme-color" content="#DC143C">
+
+  <!-- Mobile App PWA Metas -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="KlipOra">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              red: '#DC143C',
+              redGlow: '#FF1E4B',
+              blue: '#003893',
+              darkBg: '#050811',
+              cardBg: '#0D1322',
+              border: 'rgba(255, 255, 255, 0.08)'
+            }
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    * { box-sizing: border-box; }
+    
+    body {
+      background-color: #050811 !important;
+      color: #F8FAFC;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* Animated Dynamic Background Glow Orbs */
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(90px);
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.65;
+      animation: floatOrb 12s ease-in-out infinite alternate;
+    }
+
+    .orb-red {
+      top: -100px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 600px;
+      height: 420px;
+      background: radial-gradient(circle, rgba(220, 20, 60, 0.3) 0%, rgba(220, 20, 60, 0) 70%);
+    }
+
+    .orb-blue {
+      bottom: 10%;
+      right: -100px;
+      width: 600px;
+      height: 450px;
+      background: radial-gradient(circle, rgba(0, 56, 147, 0.25) 0%, rgba(0, 56, 147, 0) 70%);
+      animation-delay: -6s;
+    }
+
+    @keyframes floatOrb {
+      0% { transform: translate(-50%, 0px) scale(1); }
+      50% { transform: translate(-45%, 30px) scale(1.08); }
+      100% { transform: translate(-55%, -20px) scale(0.95); }
+    }
+
+    /* Glassmorphism Cards */
+    .glass-card {
+      background: rgba(13, 19, 34, 0.65);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6);
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .glass-card:hover {
+      border-color: rgba(255, 255, 255, 0.15);
+      box-shadow: 0 35px 70px rgba(0, 0, 0, 0.7);
+    }
+
+    /* Shimmering Animated Focus Input */
+    .glass-input-box {
+      background: rgba(6, 10, 20, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      transition: all 0.3s ease;
+    }
+
+    .glass-input-box:focus-within {
+      border-color: #DC143C;
+      box-shadow: 0 0 30px rgba(220, 20, 60, 0.35), inset 0 0 15px rgba(220, 20, 60, 0.1);
+      transform: translateY(-1px);
+    }
+
+    /* Shimmer Text Effect */
+    .text-shimmer {
+      background: linear-gradient(135deg, #FFF 0%, #FF8096 40%, #80B3FF 80%, #FFF 100%);
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: textShimmer 6s linear infinite;
+    }
+
+    @keyframes textShimmer {
+      to { background-position: 200% center; }
+    }
+
+    /* Pulse Glow Button */
+    .btn-glow {
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-glow::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(60deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+      transform: rotate(30deg);
+      transition: all 0.6s ease;
+      opacity: 0;
+    }
+    .btn-glow:hover::after {
+      left: 100%;
+      opacity: 1;
+    }
+
+    /* Slide Up Animation */
+    .animate-slide-up {
+      animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Custom Spinner */
+    @keyframes spinFast {
+      to { transform: rotate(360deg); }
+    }
+    .animate-spin-fast {
+      animation: spinFast 0.7s linear infinite;
+    }
+  </style>
+</head>
+<body class="relative min-h-screen flex flex-col justify-between selection:bg-brand-red selection:text-white">
+
+  <!-- Background Orbs -->
+  <div class="orb orb-red"></div>
+  <div class="orb orb-blue"></div>
+
+  <!-- Header -->
+  <header class="relative z-20 w-full max-w-6xl mx-auto px-6 py-6 flex items-center justify-between">
+    <a href="/" class="flex items-center space-x-3 group">
+      <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-brand-red to-brand-blue p-[1px] shadow-lg shadow-brand-red/20 group-hover:scale-105 transition-transform duration-300">
+        <div class="w-full h-full bg-brand-darkBg rounded-[15px] flex items-center justify-center text-brand-redGlow text-xl font-black italic">
+          K
+        </div>
+      </div>
+      <div>
+        <span class="text-2xl font-extrabold tracking-tight text-white block leading-none">Klip<span class="text-brand-red">Ora</span></span>
+        <span class="text-[10px] uppercase tracking-widest text-gray-400 font-semibold">Universal Media App</span>
+      </div>
+    </a>
+
+    <!-- Status Badge -->
+    <div class="flex items-center space-x-2.5 bg-slate-900/80 border border-white/10 px-3.5 py-1.5 rounded-full text-xs text-gray-300 backdrop-blur-md shadow-inner">
+      <span class="relative flex h-2 w-2">
+        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+        <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+      </span>
+      <span class="font-medium text-gray-200">System Ready</span>
+    </div>
+  </header>
+
+  <!-- Main Hero Content -->
+  <main class="relative z-10 w-full max-w-4xl mx-auto px-4 py-8 md:py-16 flex-grow flex flex-col justify-center">
+
+    <!-- Hero Title Header -->
+    <div class="text-center space-y-5 mb-10 animate-slide-up">
+      <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-brand-red/10 border border-brand-red/30 text-brand-redGlow text-xs font-semibold uppercase tracking-wider backdrop-blur-md shadow-lg shadow-brand-red/10">
+        <span class="w-2 h-2 rounded-full bg-brand-redGlow animate-pulse"></span>
+        Fast • 100% Free • Unlimited
+      </div>
+
+      <h1 class="text-4xl sm:text-6xl md:text-7xl font-extrabold text-white tracking-tight leading-tight">
+        Download Any Video <br class="hidden sm:inline">
+        <span class="text-shimmer">In Full HD & MP3</span>
+      </h1>
+
+      <p class="text-gray-400 text-sm sm:text-base max-w-xl mx-auto font-normal leading-relaxed">
+        Paste links from TikTok, YouTube, Instagram, Facebook, X (Twitter), Pinterest, Vimeo, and 1000+ platforms into KlipOra.
+      </p>
+    </div>
+
+    <!-- Main Input Download Box -->
+    <div class="glass-card rounded-3xl p-3 sm:p-6 animate-slide-up" style="animation-delay: 0.1s;">
+      <form id="fetchForm" class="space-y-4" onsubmit="handleFetch(event)">
+        <div class="glass-input-box rounded-2xl p-2 sm:p-3 flex flex-col sm:flex-row items-center gap-2">
+          
+          <div class="flex items-center w-full px-3 gap-3">
+            <svg class="w-6 h-6 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
+            </svg>
+            <input 
+              type="url" 
+              id="videoUrl" 
+              placeholder="Paste social media video link here..." 
+              required
+              class="w-full bg-transparent border-none text-white text-sm sm:text-base placeholder-gray-500 focus:outline-none focus:ring-0 py-2.5"
+              autocomplete="off"
+            />
+            <button 
+              type="button" 
+              onclick="pasteClipboard()" 
+              class="hidden sm:flex items-center gap-1.5 text-xs bg-slate-800/80 hover:bg-slate-700 text-gray-300 px-3.5 py-2 rounded-xl border border-white/10 transition-all hover:scale-105 shrink-0 font-medium active:scale-95"
+              title="Paste link from clipboard">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+              </svg>
+              Paste
+            </button>
+          </div>
+
+          <button 
+            type="submit" 
+            id="submitBtn"
+            class="btn-glow w-full sm:w-auto min-w-[150px] min-h-[52px] bg-gradient-to-r from-brand-red to-rose-600 hover:from-rose-600 hover:to-brand-red text-white font-bold px-7 py-3.5 rounded-xl shadow-lg shadow-brand-red/30 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 shrink-0">
+            <span id="btnText">Fetch Media</span>
+            <svg id="btnIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+            </svg>
+            <svg id="btnSpinner" class="hidden w-5 h-5 animate-spin-fast text-white" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+          </button>
+
+        </div>
+      </form>
+
+      <!-- Error Message Banner -->
+      <div id="errorBox" class="hidden mt-4 p-4 rounded-xl bg-red-950/80 border border-red-500/50 text-red-200 text-sm flex items-start gap-3 animate-slide-up">
+        <svg class="w-5 h-5 text-red-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        <span id="errorMsg">Failed to process link. Please check the URL and try again.</span>
+      </div>
+    </div>
+
+    <!-- Video Download Result Card (Hidden by default) -->
+    <div id="resultCard" class="hidden mt-8 glass-card rounded-3xl p-6 sm:p-8 animate-slide-up">
+      <div class="flex flex-col md:flex-row gap-6 items-center md:items-start">
+        <div class="relative w-full md:w-72 h-48 rounded-2xl overflow-hidden bg-slate-950 shrink-0 border border-white/10 group shadow-lg">
+          <img id="resThumbnail" src="" alt="Thumbnail" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+          <span id="resDuration" class="absolute bottom-3 right-3 bg-black/80 backdrop-blur-md text-white text-xs px-2.5 py-1 rounded-lg font-mono border border-white/10">00:00</span>
+        </div>
+
+        <div class="w-full space-y-5 flex-grow text-center md:text-left">
+          <div>
+            <span id="resUploader" class="text-xs font-semibold uppercase tracking-wider text-brand-redGlow block mb-1">KlipOra Stream Engine</span>
+            <h2 id="resTitle" class="text-lg sm:text-xl font-bold text-white line-clamp-2 leading-snug">Media Title Placeholder</h2>
+          </div>
+
+          <div class="pt-2 flex flex-col sm:flex-row gap-3">
+            <button 
+              onclick="triggerDownload('b', 'video')" 
+              class="btn-glow flex-1 min-h-[50px] bg-gradient-to-r from-brand-red to-rose-600 hover:from-rose-600 hover:to-brand-red text-white font-semibold px-5 py-3.5 rounded-xl shadow-lg shadow-brand-red/20 flex items-center justify-center gap-2.5 transition-all hover:scale-[1.02] active:scale-[0.98]">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+              </svg>
+              <span>Download MP4 Video</span>
+            </button>
+
+            <button 
+              onclick="triggerDownload('ba', 'audio')" 
+              class="flex-1 min-h-[50px] bg-brand-blue hover:bg-blue-800 text-white font-semibold px-5 py-3.5 rounded-xl shadow-lg border border-white/10 flex items-center justify-center gap-2.5 transition-all hover:scale-[1.02] active:scale-[0.98]">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"></path>
+              </svg>
+              <span>Download MP3 Audio</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Supported Platforms Grid -->
+    <div class="mt-14 text-center animate-slide-up" style="animation-delay: 0.2s;">
+      <p class="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-6">Supported Platforms</p>
+      
+      <div class="flex flex-wrap items-center justify-center gap-3 sm:gap-4 text-gray-300">
+        <!-- TikTok -->
+        <div class="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-900/70 border border-white/10 text-xs font-medium hover:border-brand-red/50 hover:scale-105 transition-all">
+          <svg class="w-4 h-4 fill-current text-gray-200" viewBox="0 0 24 24"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.82.56-1.31 1.54-1.28 2.53.01.8.42 1.58 1.07 2.04.83.61 1.95.73 2.9.36.92-.34 1.64-1.15 1.83-2.11.08-.43.09-.88.08-1.32-.01-4.73 0-9.46-.01-14.19z"/></svg>
+          TikTok
+        </div>
+
+        <!-- YouTube -->
+        <div class="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-900/70 border border-white/10 text-xs font-medium hover:border-red-500/50 hover:scale-105 transition-all">
+          <svg class="w-4 h-4 fill-current text-red-500" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+          YouTube
+        </div>
+
+        <!-- Instagram -->
+        <div class="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-900/70 border border-white/10 text-xs font-medium hover:border-pink-500/50 hover:scale-105 transition-all">
+          <svg class="w-4 h-4 fill-current text-pink-500" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+          Instagram
+        </div>
+
+        <!-- Facebook -->
+        <div class="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-900/70 border border-white/10 text-xs font-medium hover:border-blue-500/50 hover:scale-105 transition-all">
+          <svg class="w-4 h-4 fill-current text-blue-500" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+          Facebook
+        </div>
+
+        <!-- X / Twitter -->
+        <div class="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-900/70 border border-white/10 text-xs font-medium hover:border-gray-400/50 hover:scale-105 transition-all">
+          <svg class="w-4 h-4 fill-current text-gray-200" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+          X / Twitter
+        </div>
+
+        <!-- Pinterest -->
+        <div class="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-900/70 border border-white/10 text-xs font-medium hover:border-red-600/50 hover:scale-105 transition-all">
+          <svg class="w-4 h-4 fill-current text-red-600" viewBox="0 0 24 24"><path d="M12 0C5.373 0 0 5.372 0 12c0 5.084 3.163 9.426 7.627 11.174-.105-.949-.2-2.405.042-3.441.218-.937 1.407-5.965 1.407-5.965s-.359-.719-.359-1.782c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738.098.119.112.224.083.345-.09.375-.293 1.199-.334 1.363-.053.225-.172.271-.401.165-1.495-.69-2.433-2.878-2.433-4.646 0-3.776 2.748-7.252 7.92-7.252 4.158 0 7.392 2.967 7.392 6.923 0 4.135-2.607 7.462-6.233 7.462-1.214 0-2.354-.629-2.758-1.379l-.749 2.848c-.269 1.045-1.004 2.352-1.498 3.146C9.57 23.812 10.763 24 12 24c6.627 0 12-5.373 12-12 0-6.628-5.373-12-12-12z"/></svg>
+          Pinterest
+        </div>
+
+        <span class="text-xs text-gray-400 font-semibold px-2">+ 1000 More</span>
+      </div>
+    </div>
+
+    <!-- Feature Highlights -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mt-14 animate-slide-up" style="animation-delay: 0.3s;">
+      <div class="glass-card p-6 rounded-2xl text-center space-y-3 hover:-translate-y-1.5 transition-transform">
+        <div class="w-12 h-12 mx-auto rounded-xl bg-brand-red/10 border border-brand-red/20 flex items-center justify-center text-brand-redGlow text-xl">⚡</div>
+        <h3 class="text-white font-bold text-base">Lightning Speed</h3>
+        <p class="text-gray-400 text-xs leading-relaxed">Direct streaming engine with zero conversion queues or waiting times.</p>
+      </div>
+
+      <div class="glass-card p-6 rounded-2xl text-center space-y-3 hover:-translate-y-1.5 transition-transform">
+        <div class="w-12 h-12 mx-auto rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 text-xl">🛡️</div>
+        <h3 class="text-white font-bold text-base">100% Clean & Safe</h3>
+        <p class="text-gray-400 text-xs leading-relaxed">No intrusive popups, no malware, no user registration required.</p>
+      </div>
+
+      <div class="glass-card p-6 rounded-2xl text-center space-y-3 hover:-translate-y-1.5 transition-transform">
+        <div class="w-12 h-12 mx-auto rounded-xl bg-brand-blue/20 border border-brand-blue/30 flex items-center justify-center text-blue-400 text-xl">♾️</div>
+        <h3 class="text-white font-bold text-base">Forever Unlimited</h3>
+        <p class="text-gray-400 text-xs leading-relaxed">Unlimited HD video and crystal-clear MP3 audio downloads anytime.</p>
+      </div>
+    </div>
+
+    <!-- Interactive Animated FAQ Accordion -->
+    <section class="mt-20 space-y-6 text-left animate-slide-up" style="animation-delay: 0.4s;">
+      <div class="text-center space-y-2">
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-white">Frequently Asked Questions</h2>
+        <p class="text-gray-400 text-sm">Everything you need to know about using KlipOra.</p>
+      </div>
+
+      <div class="space-y-3 max-w-3xl mx-auto">
+        <!-- FAQ 1 -->
+        <div class="glass-card rounded-2xl p-5 cursor-pointer" onclick="toggleFaq(this)">
+          <div class="flex items-center justify-between font-bold text-white text-sm sm:text-base">
+            <span>How do I download videos using KlipOra?</span>
+            <span class="faq-icon text-brand-red transition-transform duration-300">＋</span>
+          </div>
+          <p class="faq-answer hidden text-gray-400 text-xs sm:text-sm mt-3 leading-relaxed border-t border-white/5 pt-3">
+            Copy the video link from TikTok, YouTube, Instagram, Facebook, or X (Twitter). Paste it into KlipOra's search bar above and tap "Fetch Media". Select MP4 Video or MP3 Audio to start the instant download.
+          </p>
+        </div>
+
+        <!-- FAQ 2 -->
+        <div class="glass-card rounded-2xl p-5 cursor-pointer" onclick="toggleFaq(this)">
+          <div class="flex items-center justify-between font-bold text-white text-sm sm:text-base">
+            <span>Is KlipOra free to use on mobile devices?</span>
+            <span class="faq-icon text-brand-red transition-transform duration-300">＋</span>
+          </div>
+          <p class="faq-answer hidden text-gray-400 text-xs sm:text-sm mt-3 leading-relaxed border-t border-white/5 pt-3">
+            Yes, KlipOra is 100% free across all iPhones, iPads, Android smartphones, laptops, and desktop computers.
+          </p>
+        </div>
+
+        <!-- FAQ 3 -->
+        <div class="glass-card rounded-2xl p-5 cursor-pointer" onclick="toggleFaq(this)">
+          <div class="flex items-center justify-between font-bold text-white text-sm sm:text-base">
+            <span>Are downloaded files stored on KlipOra servers?</span>
+            <span class="faq-icon text-brand-red transition-transform duration-300">＋</span>
+          </div>
+          <p class="faq-answer hidden text-gray-400 text-xs sm:text-sm mt-3 leading-relaxed border-t border-white/5 pt-3">
+            No. KlipOra does not host, save, or log any media files on its servers. All media is fetched and streamed straight from third-party social media CDNs.
+          </p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Google-Compliant Footer with Working Links -->
+  <footer class="relative z-20 w-full max-w-6xl mx-auto px-6 py-8 border-t border-white/10 text-center text-xs text-gray-400 mt-12 space-y-4">
+    <div class="flex flex-wrap items-center justify-center gap-6 text-gray-400 font-medium">
+      <a href="/privacy.html" class="hover:text-white transition-colors">Privacy Policy</a>
+      <span>•</span>
+      <a href="/terms.html" class="hover:text-white transition-colors">Terms of Service</a>
+      <span>•</span>
+      <a href="/dmca.html" class="hover:text-white transition-colors">DMCA Disclaimer</a>
+      <span>•</span>
+      <a href="/contact.html" class="hover:text-white transition-colors">Contact Us</a>
+    </div>
+    <p>© 2025 KlipOra App. Engineered for maximum performance and speed.</p>
+  </footer>
+
+  <!-- App Script -->
+  <script>
+    let currentVideoUrl = '';
+
+    async function pasteClipboard() {
+      try {
+        const text = await navigator.clipboard.readText();
+        if (text) document.getElementById('videoUrl').value = text;
+      } catch (err) {}
+    }
+
+    async function handleFetch(event) {
+      event.preventDefault();
+      const input = document.getElementById('videoUrl');
+      const url = input.value.trim();
+      if (!url) return;
+      currentVideoUrl = url;
+
+      setLoading(true);
+      hideError();
+      hideResult();
+
+      try {
+        const res = await fetch('/api/info', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url })
+        });
+        const data = await res.json();
+        if (!res.ok || data.error) throw new Error(data.error || 'Failed to fetch video details.');
+        renderResult(data);
+      } catch (err) {
+        showError(err.message || 'Error processing link. Check URL and try again.');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    function renderResult(data) {
+      document.getElementById('resThumbnail').src = data.thumbnail || 'https://via.placeholder.com/640x360';
+      document.getElementById('resTitle').textContent = data.title || 'Untitled Media';
+      document.getElementById('resUploader').textContent = data.uploader || 'KlipOra Stream';
+      document.getElementById('resDuration').textContent = formatDuration(data.duration);
+      document.getElementById('resultCard').classList.remove('hidden');
+    }
+
+    function triggerDownload(formatId, type) {
+      if (!currentVideoUrl) return;
+      window.location.href = `/api/download?url=${encodeURIComponent(currentVideoUrl)}&formatId=${formatId}&type=${type}`;
+    }
+
+    function formatDuration(seconds) {
+      if (!seconds || isNaN(seconds)) return 'HD';
+      const m = Math.floor(seconds / 60);
+      const s = Math.floor(seconds % 60);
+      return `${m}:${s < 10 ? '0' : ''}${s}`;
+    }
+
+    function setLoading(isLoading) {
+      const btn = document.getElementById('submitBtn');
+      document.getElementById('btnText').textContent = isLoading ? 'Processing...' : 'Fetch Media';
+      document.getElementById('btnIcon').classList.toggle('hidden', isLoading);
+      document.getElementById('btnSpinner').classList.toggle('hidden', !isLoading);
+      btn.disabled = isLoading;
+    }
+
+    function showError(msg) {
+      document.getElementById('errorMsg').textContent = msg;
+      document.getElementById('errorBox').classList.remove('hidden');
+    }
+    function hideError() { document.getElementById('errorBox').classList.add('hidden'); }
+    function hideResult() { document.getElementById('resultCard').classList.add('hidden'); }
+
+    function toggleFaq(card) {
+      const answer = card.querySelector('.faq-answer');
+      const icon = card.querySelector('.faq-icon');
+      const isHidden = answer.classList.contains('hidden');
+
+      document.querySelectorAll('.faq-answer').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.faq-icon').forEach(el => el.textContent = '＋');
+
+      if (isHidden) {
+        answer.classList.remove('hidden');
+        icon.textContent = '－';
+      }
+    }
+  </script>
+</body>
+</html>

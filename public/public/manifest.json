@@ -1,0 +1,15 @@
+{
+  "name": "KlipOra — Video Downloader",
+  "short_name": "KlipOra",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#050811",
+  "theme_color": "#DC143C",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/727/727245.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}
