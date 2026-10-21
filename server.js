@@ -101,7 +101,7 @@ function extractionArgs(url) {
         '--no-playlist',
         '--no-warnings',
         '--extractor-args',
-        'youtube:player_client=tv,mweb',
+        ''youtube:player_client=default',
         url
     ];
 }
