@@ -12,6 +12,14 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 const binaryPath = path.join(__dirname, 'yt-dlp-binary');
+async function initYtDlp() {
+    if (!fs.existsSync(binaryPath)) {
+        throw new Error('yt-dlp binary missing. Check Render Build Command.');
+    }
+
+    fs.chmodSync(binaryPath, 0o755);
+    ytDlpWrap = new YTDlpWrap(binaryPath);
+}
 let ytDlpWrap;
 
 // Initialize the Downloader Engine
